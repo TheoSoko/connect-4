@@ -33,9 +33,7 @@ func checkWin(board Horizontal, player uint8) bool {
 	for index, col := range board {
 		for depth, value := range col {
 			if value != player {
-				if (count > 0) {
-					count--
-				}
+				count = 0
 				continue
 			}
 			count++
@@ -57,7 +55,6 @@ func horizontalScan(board Horizontal, player uint8, colIndex int, depth int) boo
 
 	for i := colIndex; i < len(board); i++ {
 		if countX >= 4 {
-			fmt.Print("compte à 4 sur colomne: ", colIndex, "\n")
 			return true
 		}
 		if board[i][depth] != player {
