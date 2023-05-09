@@ -39,9 +39,9 @@ func makeAMove(c *gin.Context) {
 		return
 	}
 	if won == nil {
-		*won = false	
+		*won = false
 	}
-	
+
 	responseJson := struct {
 		Board logic.Horizontal `json:"board"`
 		Won   *bool            `json:"won"`
@@ -51,8 +51,11 @@ func makeAMove(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, responseJson)
-
 }
+
+/*
+	Tests
+*/
 
 func diagonalTest(c *gin.Context) {
 	input := logic.Input{}
@@ -71,5 +74,5 @@ func diagonalTest(c *gin.Context) {
 		return
 	}
 
-	c.Writer.Write([]byte("Gagné : non"))
+	c.Writer.WriteString("Gagné : non")
 }
