@@ -20,13 +20,8 @@ func InitRoutes(router *gin.Engine) {
 	})
 
 	router.POST("/play", func(c *gin.Context) {
-		type Input struct {
-			Board    logic.Horizontal `json:"board"`
-			Player   uint8/* 1 | 2 */ `json:"player"`
-			Position logic.Position `json:"position"`
-		}
 
-		input := Input{}
+		input := logic.Input{}
 
 		err := c.BindJSON(&input)
 		if err != nil {
@@ -38,13 +33,33 @@ func InitRoutes(router *gin.Engine) {
 
 		responseJson := struct {
 			Board logic.Horizontal `json:"Board"`
-			WonBy uint8            `json:"WonBy"`
+			WonBy int              `json:"WonBy"`
 		}{
 			Board: board,
 			WonBy: wonBy,
 		}
 
 		c.JSON(http.StatusOK, responseJson)
+	})
+
+	router.POST("/tryDiagonal", func(c *gin.Context) {
+		input := logic.Input{}
+
+		err := c.BindJSON(&input)
+		if err != nil {
+			c.Writer.Write([]byte(err.Error()))
+			return
+		}
+
+		boule := logic.SinisterDiagonalScan(input.Board, input.Player, 4)
+		c.Status(http.StatusAccepted)
+
+		if boule {
+			c.Writer.Write([]byte("Gagné : oui"))
+			return
+		}
+		c.Writer.Write([]byte("Gagné : non"))
+
 	})
 
 }
