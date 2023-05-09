@@ -29,7 +29,7 @@ func InitRoutes(router *gin.Engine) {
 			return
 		}
 
-		board, wonBy := logic.Add(input.Board, input.Player, input.Position)
+		board, wonBy := logic.Add(input.Board, input.Player, input.Position, 4)
 
 		responseJson := struct {
 			Board logic.Horizontal `json:"Board"`
@@ -42,7 +42,10 @@ func InitRoutes(router *gin.Engine) {
 		c.JSON(http.StatusOK, responseJson)
 	})
 
-	router.POST("/tryDiagonal", func(c *gin.Context) {
+	/*
+		Tests
+	*/
+	router.POST("/diagonal-test", func(c *gin.Context) {
 		input := logic.Input{}
 
 		err := c.BindJSON(&input)
@@ -51,7 +54,7 @@ func InitRoutes(router *gin.Engine) {
 			return
 		}
 
-		boule := logic.SinisterDiagonalScan(input.Board, input.Player, 4)
+		boule := logic.DexterDiagonalScan(input.Board, input.Player, 4)
 		c.Status(http.StatusAccepted)
 
 		if boule {

@@ -20,20 +20,21 @@ func Init() Horizontal {
 	return x
 }
 
-func Add(board Horizontal, player int /* 1 | 2 */, pos Position) (Board Horizontal, wonBy int) {
+func Add(board Horizontal, player int /* 1 | 2 */, pos Position, variant int) (Board Horizontal, wonBy int) {
 
 	x := pos[0]          // column
 	y := pos[1]          // depth
 	board[x][y] = player // 1 or 2
 
-	if checkWin(board, player) {
+	if checkWin(board, player, variant) {
 		return board, player
 	}
 
 	return board, 0
 }
 
-func checkWin(board Horizontal, player int) bool {
+func checkWin(board Horizontal, player int, variant int) bool {
+	power := variant
 	count := int(0)
 
 	for index, col := range board {
@@ -44,23 +45,25 @@ func checkWin(board Horizontal, player int) bool {
 			}
 			count++
 
-			fmt.Print("compte à : ", count, "\n")
-
-			if count >= 4 || horizontalScan(board, player, index, depth) || SinisterDiagonalScan(board, player, 4) {
+			if count >= power || horizontalScan(board, player, index, depth, variant) {
 				//fmt.Print("victoire sur colomne : ", index, "\n", "profondeur : ", depth, "\n")
 				return true
 			}
 		}
 	}
+	if SinisterDiagonalScan(board, player, variant) || DexterDiagonalScan(board, player, variant) {
+		return true
+	}
 
 	return false
 }
 
-func horizontalScan(board Horizontal, player int, colIndex int, depth int) bool {
+func horizontalScan(board Horizontal, player int, colIndex int, depth int, variant int) bool {
 	countX := int(1)
+	power := variant
 
 	for i := colIndex; i < len(board); i++ {
-		if countX >= 4 {
+		if countX >= power {
 			return true
 		}
 		if board[i][depth] != player {
@@ -72,15 +75,15 @@ func horizontalScan(board Horizontal, player int, colIndex int, depth int) bool 
 	return false
 }
 
-func SinisterDiagonalScan(board Horizontal, player int, power int) bool {
-	count := 0
-
-	col := 0
-	depth := power - 1
+func SinisterDiagonalScan(board Horizontal, player int, variant int) bool {
+	power := variant
 	lineLen := len(board)
 	colLen := len(board[0])
-
+	col := 0
+	depth := power - 1
 	firstCol := true
+
+	count := 0
 
 	for true {
 		col2 := col
@@ -121,6 +124,66 @@ func SinisterDiagonalScan(board Horizontal, player int, power int) bool {
 
 		if col == lineLen {
 			return false
+		}
+	}
+
+	return false
+}
+
+func DexterDiagonalScan(board Horizontal, player int, variant int) bool {
+	power := variant
+	lineLen := len(board)
+	colLen := len(board[0])
+	col := power - 1
+	depth := colLen - 1
+	lastCol := false
+
+	count := 0
+
+	for true {
+		col2 := col
+		depth2 := depth
+
+		// Diagonal sweep
+		for true {
+			if depth2 == -1 || col2 == -1 {
+				fmt.Println("In: (break) col2 : ", col2)
+				break
+			}
+			fmt.Println("In: item content : ", board[col2][depth2])
+
+			if board[col2][depth2] == player {
+				count++
+			} else {
+				count = 0
+			}
+			col2--
+			depth2--
+			if count == 4 {
+				break
+			}
+		}
+
+		if count == 4 {
+			return true
+		}
+
+		if lastCol {
+			fmt.Println("Out: lastCol here ")
+			depth--
+			if depth < power-1 {
+				fmt.Println("Out: depth at minimum here")
+				break
+			}
+			continue
+		}
+
+		col++
+		fmt.Println("Out: col =  ", col)
+
+		if col == (lineLen - 1) {
+			lastCol = true
+			fmt.Println("Out: lastCol activated here ")
 		}
 	}
 
