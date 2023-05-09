@@ -10,37 +10,11 @@ import (
 
 func InitRoutes(router *gin.Engine) {
 
-	router.GET("/", func(c *gin.Context) {
-		c.JSON(http.StatusOK, "Hi, there")
-	})
+	router.GET("/", hello)
 
-	router.GET("/lets-go", func(c *gin.Context) {
-		board := logic.Init()
-		c.JSON(http.StatusOK, board)
-	})
+	router.GET("/lets-go", boardInit)
 
-	router.POST("/play", func(c *gin.Context) {
-
-		input := logic.Input{}
-
-		err := c.BindJSON(&input)
-		if err != nil {
-			c.Writer.Write([]byte(err.Error()))
-			return
-		}
-
-		board, wonBy := logic.Add(input.Board, input.Player, input.Position, 4)
-
-		responseJson := struct {
-			Board logic.Horizontal `json:"Board"`
-			WonBy int              `json:"WonBy"`
-		}{
-			Board: board,
-			WonBy: wonBy,
-		}
-
-		c.JSON(http.StatusOK, responseJson)
-	})
+	router.POST("/play", makeAMove)
 
 	/*
 		Tests

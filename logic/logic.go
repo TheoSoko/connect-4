@@ -20,26 +20,33 @@ func Init() Horizontal {
 	return x
 }
 
-func Add(board Horizontal, player int /* 1 | 2 */, pos Position, variant int) (Board Horizontal, wonBy int) {
-
+func Add(board Horizontal, player int /* 1 | 2 */, pos Position, variant int) (Board Horizontal, won *bool, err error) {
 	x := pos[0]          // column
 	y := pos[1]          // depth
 	board[x][y] = player // 1 or 2
 
-	if checkWin(board, player, variant) {
-		return board, player
+	win, err := checkWin(board, player, variant)
+	if err != nil {
+		return board, nil, err
 	}
 
-	return board, 0
+	return board, &win, nil
 }
 
-func checkWin(board Horizontal, player int, variant int) bool {
+func checkWin(board Horizontal, player int, variant int) (win bool, err error) {
+	defer func() {
+		r := recover()
+		if r != nil {
+			err = r.(error)
+		}
+	}()
+
 	power := variant
 	count := int(0)
 
 	for index, col := range board {
-		for depth, value := range col {
-			if value != player {
+		for depth, chip := range col {
+			if chip != player {
 				count = 0
 				continue
 			}
@@ -47,15 +54,16 @@ func checkWin(board Horizontal, player int, variant int) bool {
 
 			if count >= power || horizontalScan(board, player, index, depth, variant) {
 				//fmt.Print("victoire sur colomne : ", index, "\n", "profondeur : ", depth, "\n")
-				return true
+				return true, nil
 			}
 		}
 	}
+
 	if SinisterDiagonalScan(board, player, variant) || DexterDiagonalScan(board, player, variant) {
-		return true
+		return true, nil
 	}
 
-	return false
+	return false, nil
 }
 
 func horizontalScan(board Horizontal, player int, colIndex int, depth int, variant int) bool {
