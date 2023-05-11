@@ -43,7 +43,7 @@ func makeAMove(c *gin.Context) {
 	}
 
 	responseJson := struct {
-		Board logic.Horizontal `json:"board"`
+		Board logic.Board `json:"board"`
 		Won   *bool            `json:"won"`
 	}{
 		Board: board,

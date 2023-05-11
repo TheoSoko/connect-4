@@ -4,23 +4,29 @@ import (
 	"fmt"
 )
 
-type Vertical [6]int // 1 | 2 | 3
-type Horizontal [7]Vertical
+type Vertical [6]int // 0 | 1 | 2
+type Board [7]Vertical
 type Position [2]int
 
 type Input struct {
-	Board    Horizontal `json:"board"`
-	Player   int/* 1 | 2 */ `json:"player"`
+	Board    Board `json:"board"`
+	Player   int `json:"player"` // 1 | 2
 	Position Position `json:"position"`
 }
 
-func Init() Horizontal {
-	y := Vertical{0, 0, 0, 0, 0, 0}
-	x := Horizontal{y, y, y, y, y, y, y}
+func Init() Board {
+	var y Vertical
+	var x Board
+	for i := range y {
+		y[i] = 0
+	}
+	for i := range x {
+		x[i] = y
+	}
 	return x
 }
 
-func Add(board Horizontal, player int /* 1 | 2 */, pos Position, variant int) (Board Horizontal, won *bool, err error) {
+func Add(board Board, player int /* 1 | 2 */, pos Position, variant int) (b Board, won *bool, err error) {
 	x := pos[0]          // column
 	y := pos[1]          // depth
 	board[x][y] = player // 1 or 2
@@ -33,7 +39,7 @@ func Add(board Horizontal, player int /* 1 | 2 */, pos Position, variant int) (B
 	return board, &win, nil
 }
 
-func checkWin(board Horizontal, player int, variant int) (win bool, err error) {
+func checkWin(board Board, player int, variant int) (win bool, err error) {
 	defer func() {
 		r := recover()
 		if r != nil {
@@ -66,7 +72,7 @@ func checkWin(board Horizontal, player int, variant int) (win bool, err error) {
 	return false, nil
 }
 
-func horizontalScan(board Horizontal, player int, colIndex int, depth int, variant int) bool {
+func horizontalScan(board Board, player int, colIndex int, depth int, variant int) bool {
 	countX := int(1)
 	power := variant
 
@@ -83,7 +89,7 @@ func horizontalScan(board Horizontal, player int, colIndex int, depth int, varia
 	return false
 }
 
-func SinisterDiagonalScan(board Horizontal, player int, variant int) bool {
+func SinisterDiagonalScan(board Board, player int, variant int) bool {
 	power := variant
 	lineLen := len(board)
 	colLen := len(board[0])
@@ -138,7 +144,7 @@ func SinisterDiagonalScan(board Horizontal, player int, variant int) bool {
 	return false
 }
 
-func DexterDiagonalScan(board Horizontal, player int, variant int) bool {
+func DexterDiagonalScan(board Board, player int, variant int) bool {
 	power := variant
 	lineLen := len(board)
 	colLen := len(board[0])
